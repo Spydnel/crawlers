@@ -99,17 +99,11 @@
 			"animation_length": 4,
 			"bones": {
 				"head": {
-					"rotation": {
-						"vector": ["Math.sin(query.anim_time * 180) * 1 -0.3", 0, 0]
-					},
-					"position": {
-						"vector": [0, "Math.sin(query.anim_time * 90) * 0.1", 0]
-					}
+					"rotation": ["Math.sin(query.anim_time * 180) * 1 -0.3", 0, 0],
+					"position": [0, "Math.sin(query.anim_time * 90) * 0.1", 0]
 				},
 				"fuse": {
-					"rotation": {
-						"vector": [0, 0, "Math.sin(query.anim_time * 180 + 10) * 2"]
-					}
+					"rotation": [0, 0, "Math.sin(query.anim_time * 180 + 10) * 2"]
 				}
 			}
 		},
@@ -175,7 +169,60 @@
 					}
 				}
 			}
+		},
+		"animation.crawler.land": {
+			"loop": true,
+			"animation_length": 1.25,
+			"bones": {
+				"head": {
+					"position": [0, -4, 0]
+				},
+				"rightleg1": {
+					"position": [-2, 2, 1.5],
+					"scale": 0
+				},
+				"leftleg1": {
+					"position": [2, 2, 1.5],
+					"scale": 0
+				},
+				"leftleg2": {
+					"position": [2, 2, -1.5],
+					"scale": 0
+				},
+				"rightleg2": {
+					"position": [-2, 2, -1.5],
+					"scale": 0
+				}
+			}
+		},
+		"animation.crawler.fly": {
+			"loop": true,
+			"animation_length": 2,
+			"bones": {
+				"head": {
+					"rotation": [0, 0, 0],
+					"position": [0, -4, 0]
+				},
+				"rightleg1": {
+					"position": [-2, 2, 1.5],
+					"scale": 0
+				},
+				"leftleg1": {
+					"position": [2, 2, 1.5],
+					"scale": 0
+				},
+				"leftleg2": {
+					"position": [2, 2, -1.5],
+					"scale": 0
+				},
+				"rightleg2": {
+					"position": [-2, 2, -1.5],
+					"scale": 0
+				},
+				"center": {
+					"rotation": ["Math.cos(query.anim_time * 720) * 20  ", 0, "Math.sin(query.anim_time * 720) * 20 "]
+				}
+			}
 		}
-	},
-	"geckolib_format_version": 2
+	}
 }
