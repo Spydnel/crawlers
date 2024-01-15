@@ -4,13 +4,12 @@
 		"animation.crawler.walk": {
 			"loop": true,
 			"animation_length": 1,
-			"anim_time_update": "q.anim_time + 2 * q.delta_time",
 			"bones": {
 				"head": {
 					"rotation": [0, 0, "Math.sin(query.anim_time * 720) * 3"]
 				},
 				"fuse": {
-					"rotation": [0, 0, "Math.sin(query.anim_time * 720 + -90) * 5"]
+					"rotation": [0, 0, "Math.sin(query.anim_time * 720 + -90) * 9"]
 				},
 				"rightleg1": {
 					"rotation": {

@@ -17,12 +17,14 @@ import net.minecraft.entity.passive.FoxEntity;
 import net.minecraft.entity.passive.OcelotEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
+import net.spydnel.crawlers.CreepersCrawlers;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -39,14 +41,9 @@ public class CrawlerEntity extends HostileEntity implements GeoEntity {
     private static final TrackedData<Boolean> IGNITED =
             DataTracker.registerData(CrawlerEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
-    private static final TrackedData<Integer> FUSE_SPEED =
-            DataTracker.registerData(CrawlerEntity.class, TrackedDataHandlerRegistry.INTEGER);
-
     private int sitTime = 0;
     private boolean inAir = false;
     private int explosionRadius = 3;
-    private int lastFuseTime;
-    private int currentFuseTime;
     private int fuseTime = 30;
     private AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
     public CrawlerEntity(EntityType<? extends CrawlerEntity> entityType, World world) {
@@ -73,7 +70,7 @@ public class CrawlerEntity extends HostileEntity implements GeoEntity {
     }
 
     protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ENTITY_CREEPER_HURT;
+            return SoundEvents.ITEM_FLINTANDSTEEL_USE;
     }
 
     public void writeCustomDataToNbt(NbtCompound nbt) {
@@ -144,29 +141,24 @@ public class CrawlerEntity extends HostileEntity implements GeoEntity {
             } else {
                 this.sitTime = 0;
             }
-            if (sitTime > 100) {
-                this.stand();
+            if (sitTime > 200) {
+                this.ignite();
             }
 
-            this.lastFuseTime = this.currentFuseTime;
             if (this.isIgnited()) {
-                this.setFuseSpeed(1);
+                this.fuseTime--;
             }
-
-            int i = this.getFuseSpeed();
-            if (i > 0 && this.currentFuseTime == 0) {
-                this.playSound(SoundEvents.ENTITY_CREEPER_PRIMED, 1.0F, 0.5F);
-                this.emitGameEvent(GameEvent.PRIME_FUSE);
-            }
-
-            this.currentFuseTime += i;
-            if (this.currentFuseTime < 0) {
-                this.currentFuseTime = 0;
-            }
-
-            if (this.currentFuseTime >= this.fuseTime) {
-                this.currentFuseTime = this.fuseTime;
+            if (this.fuseTime <= 0) {
                 this.explode();
+            }
+
+            if (this.sitTime >= 4 && this.sitTime % 3 == 0) {
+                this.playSound(CreepersCrawlers.ENTITY_CRAWLER_FUSE, 0.7F, 1.2F);
+            }
+            if (this.sitTime >= 4) {
+                this.getWorld().addParticle(ParticleTypes.ELECTRIC_SPARK,
+                        true, this.getParticleX(0), this.getY() + 1, this.getParticleZ(0),
+                        (this.random.nextDouble() - 0.5) + 0.2, (this.random.nextDouble() - 0.5) + 0.2,(this.random.nextDouble() - 0.5) + 0.2);
             }
         }
         super.tick();
@@ -179,18 +171,6 @@ public class CrawlerEntity extends HostileEntity implements GeoEntity {
             this.discard();
         }
 
-    }
-
-    public float getClientFuseTime(float timeDelta) {
-        return MathHelper.lerp(timeDelta, (float)this.lastFuseTime, (float)this.currentFuseTime) / (float)(this.fuseTime - 2);
-    }
-
-    public int getFuseSpeed() {
-        return this.dataTracker.get(FUSE_SPEED);
-    }
-
-    public void setFuseSpeed(int fuseSpeed) {
-        this.dataTracker.set(FUSE_SPEED, fuseSpeed);
     }
 
     public void sit() {
@@ -216,7 +196,6 @@ public class CrawlerEntity extends HostileEntity implements GeoEntity {
     @Override
     protected void initDataTracker() {
         super.initDataTracker();
-        this.dataTracker.startTracking(FUSE_SPEED, -1);
         this.dataTracker.startTracking(SITTING, false);
         this.dataTracker.startTracking(IGNITED, false);
     }
@@ -229,7 +208,7 @@ public class CrawlerEntity extends HostileEntity implements GeoEntity {
     private PlayState predicate(AnimationState<GeoAnimatable> geoAnimatableAnimationState) {
         if (this.isSitting()) {
             if (this.sitTime > 9) {
-                if (!this.isOnGround()) {
+                if (this.getVelocity().length() >= 0.2) {
                     inAir = true;
                     geoAnimatableAnimationState.getController().setAnimation(RawAnimation.begin().then("animation.crawler.fly", Animation.LoopType.LOOP));
                     return PlayState.CONTINUE;
@@ -250,6 +229,6 @@ public class CrawlerEntity extends HostileEntity implements GeoEntity {
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
+        return this.cache;
     }
 }

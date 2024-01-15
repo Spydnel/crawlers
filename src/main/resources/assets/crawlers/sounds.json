@@ -1,0 +1,8 @@
+{
+  "entity.crawler.fuse" : {
+    "sounds" : [
+      "crawlers:mob/crawler/fuse",
+      "crawlers:mob/crawler/fuse1"
+    ]
+  }
+}
